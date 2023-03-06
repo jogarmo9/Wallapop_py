@@ -81,17 +81,14 @@ def create_csv(productos: list, date: str):
                 productos.remove(i)
 
     # Creamos el csv
-    data = {"nombre": [], "precio": [], "reservado": [], "xpath": []}
+    data = {"nombre": [], "precio": [], "reservado": [], "Fecha": []}
     for producto in productos:
         data["nombre"].append(producto.get_nombre())
         data["precio"].append(producto.get_precio())
         data["reservado"].append(producto.get_reservado())
-        data["xpath"].append(producto.get_xpath())
+        data["Fecha"].append(date)
 
     df = pd.DataFrame(data)
-    # Añaadimos la fecha
-    #df["Fecha"] = date
-    print(df)
 
     name = input("Introduce el nombre del csv de salida: ")
     if ".csv" not in name:
@@ -115,26 +112,28 @@ def get_data():
     # Obtenemos la fecha
     now = datetime.now()
     date = now.strftime("%d/%m/%Y %H:%M:%S")
-    driver.quit()
 
     # Filtramos los productos por titulo
     productos = filter(productos)
     # Creamos el csv
     create_csv(productos, date)
 
+    print("Quieres abrir los articulos encontrados en el navegador? (s/n)")
+    option = input()
+    if option == "S" or option == "s":
+        for producto in productos:
+            xpath_click(producto.get_xpath(), driver)
+
 
 def xpath_click(xpath: str, driver: webdriver):
-    for i in xpath:
-        driver.find_element_by_xpath(i).click()
+    driver.find_element_by_xpath(xpath).click()
 
 
 def menu():
     print("Wallapop Scraper")
     print("="*50)
     print("1. Buscar articulos y crear csv")
-    print("2. Actualizar csv")
-    print("3.Buscar articulos del csv")
-    print("4. Salir")
+    print("3. Salir")
     print("="*50)
     option = input("Introduce una opcion: ")
     return int(option)
@@ -144,10 +143,6 @@ def main():
     option = menu()
     if option == 1:
         get_data()
-    elif option == 2:
-        name = input("Introduce el nombre del csv: ")
-        xpath = get_xpath()
-        xpath_click(xpath)
     elif option == 3:
         exit()
 
