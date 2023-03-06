@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import time
 
 
 def get_browser(url):
@@ -9,7 +10,7 @@ def get_browser(url):
     options = webdriver.ChromeOptions()
     options.add_argument('--start-maximized')
     options.add_argument('--disable-extensions')
-    driver_path = './chromedriver.exe'
+    driver_path = 'chromedriver.exe'
     driver = webdriver.Chrome(driver_path, chrome_options=options)
 
     # Iniciarla en la pantalla 2

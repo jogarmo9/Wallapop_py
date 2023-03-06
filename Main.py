@@ -13,9 +13,6 @@ def get_productos(driver):
     # Obtenemos las tarjetas
     cards = driver.find_elements_by_class_name(
         'ItemCard__data border-top-0 ItemCard__data--with-description'.replace(" ", "."))
-    # Obtenemos si el articulo esta reservado o no
-    reserved = driver.find_elements(
-        By.CSS_SELECTOR, "tsl-svg-icon[src*='/assets/icons/item-card/reserved.svg']")
 
     productos = []
     c = 1
@@ -31,7 +28,7 @@ def get_productos(driver):
 
         producto = Producto(card[1], card[0], reservado, xpath)
         productos.append(producto)
-
+        c += 1
     return productos
 
 
@@ -40,10 +37,12 @@ def get_reserved_xpath(position, driver):
     # Obtenemos el xpath de la tarjeta empezando desde 1 hasta el numero de tarjetas
     xpath = "/html/body/tsl-root/tsl-public/div/div/tsl-search/div/tsl-search-layout/div/div[2]/div[1]/tsl-public-item-card-list/div/a[" + str(
         position) + "]"
-
-    reserved = driver.find_elements(
-        By.CSS_SELECTOR, "tsl-svg-icon[src*='/assets/icons/item-card/reserved.svg']")
-    reservado = driver.find_elements_by_xpath(reserved)
+    try:
+        # Obtenemos el boton de reservar
+        reservado = driver.find_element_by_xpath("/html/body/tsl-root/tsl-public/div/div/tsl-search/div/tsl-search-layout/div/div[2]/div/tsl-public-item-card-list/div/a["+str(
+            position)+"]/tsl-public-item-card/div/tsl-svg-icon")
+    except:
+        reservado = False
     # Si el articulo esta reservado añadimos "Reservado" a la lista
     if reservado:
         reservado = "Reservado"
@@ -82,10 +81,17 @@ def create_csv(productos: list, date: str):
                 productos.remove(i)
 
     # Creamos el csv
-    df = pd.DataFrame(productos)
+    data = {"nombre": [], "precio": [], "reservado": [], "xpath": []}
+    for producto in productos:
+        data["nombre"].append(producto.get_nombre())
+        data["precio"].append(producto.get_precio())
+        data["reservado"].append(producto.get_reservado())
+        data["xpath"].append(producto.get_xpath())
 
+    df = pd.DataFrame(data)
     # Añaadimos la fecha
-    df["Fecha"] = date
+    #df["Fecha"] = date
+    print(df)
 
     name = input("Introduce el nombre del csv de salida: ")
     if ".csv" not in name:
